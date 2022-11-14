@@ -752,7 +752,12 @@ splineBasis2Dpen <- function(funDataObject, bs = "ps", m = NA, k = -1, parallel 
   scores <- rbind(scores, g$coef)
   
   # extract basis functions (in the correct dimensions)
-  B <- aperm(array(mgcv::model.matrix.gam(g), c(nObsPoints(funDataObject), ncol(scores))), c(3,1,2))
+  modelMat <- mgcv::model.matrix.gam(g)
+  fullMat <- modelMat[match(1:length(funDataObject@X[N, , ]), rownames(modelMat)),]
+  rownames(fullMat) <- 1:length(funDataObject@X[N, , ])
+  fullMat[is.na(fullMat)] <- 0
+  
+  B <- aperm(array(fullMat, c(nObsPoints(funDataObject), ncol(scores))), c(3,1,2))
   
   return(list(scores = scores,
               B = calcBasisIntegrals(B, 2, funDataObject@argvals),
